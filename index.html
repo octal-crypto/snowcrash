@@ -29,7 +29,7 @@
             f = 0
             charsets = ["Ñ$50c-", "@97?;,", "#8£!:.", "₩42a+_", "%gm;)'", "0101/ "]
             cols = [0, 1, 2, 4, 5, 6, 7, 8, 9, 11]
-            fSizes = [12.5, 9, 6, 4.7]
+            //fSizes = [12.5, 9, 6, 4.7]
             noiseEnd = [0.001, 0.002, 0.005, 0.008]
             speeds = [0.7, 1.2, 2.5, 2.6]
             textCol = [0, 100]
@@ -44,8 +44,8 @@
             colTwo = 0
             looping = true
             reverse = false
-            w = 500
-            h = 500
+            w = 540
+            h = 540
             createCanvas(w, h);
             colorMode(HSB, 360, 100, 100);
             textFont('Courier')
@@ -54,8 +54,8 @@
             colOne = cols[parseInt(hash.substring(0, 1))] * 30
             //frameSize
             frame = Math.floor(random(0, 4))
-            frameW = width / fSizes[parseInt(hash.substring(1, 2))]
-            frameH = height / fSizes[parseInt(hash.substring(1, 2))]
+            frameW = width / 17//fSizes[parseInt(hash.substring(1, 2))]
+            frameH = height / 17//fSizes[parseInt(hash.substring(1, 2))]
             //noisiness
             end = noiseEnd[parseInt(hash.substring(2, 3))]
             //speed
