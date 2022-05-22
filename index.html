@@ -26,139 +26,148 @@
                 //result = contents[1].split('&t=')
                 tokenId = 14//parseInt(atob(result[0]));
                 hash = "61123010"//atob(result[1])
-                f = 0
-                charsets = ["Ñ$50c-", "@97?;,", "#8£!:.", "₩42a+_", "%gm;)'", "0101/ "]
-                cols = [0, 1, 2, 4, 5, 6, 7, 8, 9, 11]
-                fSizes = [12.5, 9, 6, 4.7]
-                noiseEnd = [0.001, 0.002, 0.005, 0.008]
-                speeds = [0.7, 1.2, 2.5, 2.6]
-                textCol = [0, 100]
-                charSpread = [0.06, 0.12, 0.18, 0.24]
 
-                t = 0
-                xoff1 = 0
-                yoff1 = 0
-                xyoff = 0
-                n = 0
-                satTwo = 0
-                colTwo = 0
-                looping = true
-                reverse = false
-                w = 500
-                h = 500
-                createCanvas(w, h);
-                colorMode(HSB, 360, 100, 100);
-                textFont('Courier')
-                noiseSeed(tokenId)
-                //bgcolor
-                colOne = cols[parseInt(hash.substring(0, 1))] * 30
-                //frameSize
-                frame = Math.floor(random(0, 4))
-                frameW = width / fSizes[parseInt(hash.substring(1, 2))]
-                frameH = height / fSizes[parseInt(hash.substring(1, 2))]
-                //noisiness
-                end = noiseEnd[parseInt(hash.substring(2, 3))]
-                //speed
-                speed = speeds[parseInt(hash.substring(3, 4))] / (frameW + frameH) / 3
-                //spread
-                spread = charSpread[parseInt(hash.substring(4, 5))]
-                //textCol
-                brightTwo = textCol[parseInt(hash.substring(5, 6))]
-                //char set
-                chars = parseInt(hash.substring(6, 7))
-                //flow-type
-                flowType = parseInt(hash.substring(7, 8))
+                let f = 0
+                const charsets = ["Ñ$50c-","@97?;,","#8£!:.","₩42a+_","%gm;)'", "0101/ "]
+                let cols = [0,1,2,4,5,6,7,8,9,11]
+                let noiseEnd= [0.001,0.002,0.005,0.008]
+                let speeds = [0.7,1.2,2.5,2.6]
+                let textCol = [0,100]
+                let charSpread = [0.06,0.12,0.18,0.24]
 
-                satOne = 80
-                if (brightTwo == 100) {
+                let t = 0
+                let xoff1, yoff1, xyoff,n
+                let satTwo = 0
+                let colTwo = 0
+                let looping = true
+                let reverse = false
+                let w = 540
+                let h = 540
+
+                function setup() {
+                  createCanvas(w, h);
+                  colorMode(HSB,360,100,100);
+                  textFont('Courier')
+
+
+                  //token hash compatibility stuff
+
+                  noiseSeed(tokenId)
+                  //bgcolor
+                  colOne = cols[parseInt(hash.substring(0,1))] * 30 
+                  size=17
+                  frameW = width / size
+                  frameH = height /size
+                  //noisiness
+                  end = noiseEnd[parseInt(hash.substring(2,3))]
+                  //speed
+                  speed = speeds[parseInt(hash.substring(3,4))] / (frameW + frameH) / 3
+                  //spread
+                  spread = charSpread[parseInt(hash.substring(4,5))]
+                  //textCol
+                  brightTwo = textCol[parseInt(hash.substring(5,6))]
+                  //char set
+                  chars = parseInt(hash.substring(6,7))
+                  //flow-type
+                  flowType =  parseInt(hash.substring(7,8))
+
+
+                  satOne = 80
+                  if (brightTwo == 100) {
                     brightOne = 85
-                } else {
+                  } else {
                     brightOne = 100
+                  }
+                  fill(colTwo,satTwo,brightTwo)
                 }
-                fill(colTwo, satTwo, brightTwo)
-            }
 
-            function draw() {
-                background(colOne, satOne, brightOne);
-                for (let x = frameW; x <= width - frameW; x += 10) {
-                    for (let y = frameH; y <= height - frameH; y += 10) {
-                        xoff1 = map(x, frameW, width, 0, end)
-                        yoff1 = map(y, frameH, height, 0, end)
-                        xyoff = xoff1 + yoff1
-                        n = noise(x * xyoff + t, y * xyoff + t, f);
-                        noStroke();
-                        fill(colTwo, satTwo, brightTwo);
-                        if (n > 0.5 + spread * 0.80 || n < 0.50 - spread * 0.8) {
-                            text(charsets[chars][0], x, y)
-                        } else if (n > 0.5 + spread * 0.65 || n < 0.50 - spread * 0.65) {
-                            text(charsets[chars][1], x, y)
-                        } else if (n > 0.5 + spread * 0.5 || n < 0.50 - spread * 0.5) {
-                            text(charsets[chars][2], x, y)
-                        } else if (n > 0.5 + spread * 0.35 || n < 0.50 - spread * 0.35) {
-                            text(charsets[chars][3], x, y)
-                        } else if (n > 0.5 + spread * 0.2 || n < 0.50 - spread * 0.2) {
-                            text(charsets[chars][4], x, y)
+
+                function draw() {
+                  colors = ["#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#72a462","#72a462","#72a462","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#000000","#000000","#000000","#000000","#72a462","#000000","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#000000","#642d9a","#642d9a","#000000","#72a462","#000000","#642d9a","#642d9a","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#000000","#8141bf","#8141bf","#000000","#000000","#000000","#8141bf","#8141bf","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#a68f65","#a68f65","#a68f65","#a68f65","#a68f65","#a68f65","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#a68f65","#a68f65","#a68f65","#a68f65","#000000","#000000","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#597450","#72a462","#72a462","#72a462","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#000000","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#72a462","#000000","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96","#6e7c96"]
+                  background("#000000");
+                  i=0
+                  for (let y = frameH; y <= height-frameH; y += 10) { 
+                    j=0
+                    for (let x = frameW; x <= width-frameW; x += 10)     {
+                      xoff1 = map(x, frameW, width, 0,end)
+                      yoff1 = map(y, frameH, height, 0,end)
+                      xyoff = xoff1 + yoff1 
+                      n = noise(x * xyoff + t, y * xyoff + t,f);
+                      noStroke();
+                      fill(colors[24*int(i/2)+int(j/2)])
+                      j++
+                        if (n > 0.5 + spread*0.80 || n < 0.50 - spread*0.8) {
+                          text(charsets[chars][0],x,y) 
+                        } else if (n > 0.5 + spread*0.65 || n < 0.50 - spread*0.65) {
+                          text(charsets[chars][1],x,y) 
+                        } else if (n > 0.5 + spread*0.5 || n < 0.50 - spread*0.5) {
+                          text(charsets[chars][2],x,y) 
+                        } else if (n > 0.5 + spread*0.35 || n < 0.50 - spread*0.35) {
+                          text(charsets[chars][3],x,y) 
+                        } else if (n > 0.5 + spread*0.2 || n < 0.50 - spread*0.2) {
+                          text(charsets[chars][4],x,y) 
                         } else {
-                            text(charsets[chars][5], x, y)
+                          text(charsets[chars][5],x,y) 
                         }
                     }
-                }
-                if (reverse == false) {
-                    if (flowType == 0) {
-                        t += speed
+                    i++
+                  }
+                  if (reverse == false) {
+                    if (flowType == 0){
+                      t+= speed
                     } else {
-                        f += speed
-                        t += speed / 10
+                      f+= speed
+                      t+= speed/10
                     }
 
-                } else {
-                    if (flowType == 0) {
-                        t -= speed
-                    } else {
-                        f -= speed
-                        t -= speed / 10
-                    }
+                  } else {
+                      if (flowType == 0){
+                        t-= speed
+                      } else {
+                        f-= speed
+                        t-= speed/10
+                      }
+                  }  
+                  text("#" + tokenId.toString(),10,height-10)
                 }
-                text("#" + tokenId.toString(), 10, height - 10)
-            }
 
-            function mouseClicked() {
-                buffCol = colOne
-                buffSat = satOne
-                buffBright = brightOne
+                function mouseClicked() {
+                  buffCol = colOne
+                  buffSat = satOne
+                  buffBright = brightOne
 
-                colOne = colTwo
-                satOne = satTwo
-                brightOne = brightTwo
+                  colOne = colTwo
+                  satOne = satTwo
+                  brightOne = brightTwo
 
-                colTwo = buffCol
-                satTwo = buffSat
-                brightTwo = buffBright
-            }
+                  colTwo = buffCol
+                  satTwo = buffSat
+                  brightTwo = buffBright
+                }
 
-            function keyPressed() {
-                if (keyCode === 32 && looping == true) {
+                function keyPressed() {
+                  if (keyCode === 32 && looping == true) {
                     noLoop();
                     looping = false
-                } else if (keyCode === LEFT_ARROW) {
+                  } else if (keyCode === LEFT_ARROW) {
                     reverse = false;
                     loop()
                     looping = true;
-                } else if (keyCode === RIGHT_ARROW) {
+                  } else if (keyCode === RIGHT_ARROW) {
                     reverse = true;
                     loop()
                     looping = true
-                } else if (keyCode === UP_ARROW) {
-                    resizeCanvas(750, 250)
-                } else if (keyCode === DOWN_ARROW) {
-                    resizeCanvas(500, 500)
-                } else if (keyCode === 16) {
-                    resizeCanvas(350, 600)
-                } else {
+                  } else if (keyCode === UP_ARROW) {
+                    resizeCanvas(750,250)
+                  } else if (keyCode === DOWN_ARROW) {
+                    resizeCanvas(500,500)
+                  } else if (keyCode === 16) {
+                    resizeCanvas(350,600)
+                  } else {
                     loop()
                     looping = true
+                  }
                 }
-            }
         </script>
     </body>
 </html>
