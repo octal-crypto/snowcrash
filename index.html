@@ -52,7 +52,7 @@
 <body>
     <h1>SnowCrash + CryptoDuckies</h1>
     <label for="duckieId">Duckie ID:</label>
-    <input id="duckieId" type="number" min="1" max="5000" placeholder="">
+    <input id="duckieId" type="number" min="1" max="5000" value="1">
     <br>
     <label for="characters">Characters:</label>
     <select id="characters">
@@ -101,7 +101,7 @@
         var speedInput = document.getElementById("speed");
         var slicesInput = document.getElementById("slices");
         var flowInput = document.getElementById("flow");
-
+        
         /** Blends an rgba hex {color} into an rgb {background} **/
         function _blend(color, background) {
             const alpha = color[3];
@@ -114,14 +114,19 @@
         }
 
         var p = null;
+        var currDuckieId = null;
         function resketch() {
-            if (p) p.remove();
             if (duckieIdInput.value >=1 && duckieIdInput.value <= 5000) {
+                if (p) p.remove();
+                currDuckieId = duckieIdInput.value;
                 p = new p5(sketch);
             }
         }
 
-        duckieIdInput.onmouseleave = resketch;
+        duckieIdInput.onmouseleave = function() {
+            if (currDuckieId != duckieIdInput.value) resketch;
+        }
+
         duckieIdInput.onchange = resketch;
         charactersInput.onchange = resketch;
         noisinessInput.onchange = resketch;
@@ -134,10 +139,11 @@
         speeds = [0.7, 1.2, 2.5, 2.6]
         textCol = [0, 100]
         charSpread = [0.06, 0.12, 0.18, 0.24]
+        resketch();
 
         function sketch(p) {
             p.preload = function() {
-                duckie = p.loadJSON("https://octal-crypto.github.io/crypto-duckies/duckies/duckie"+duckieId.value+".json");
+                duckie = p.loadJSON("https://octal-crypto.github.io/crypto-duckies/duckies/duckie"+duckieIdInput.value+".json");
             }
             p.setup = function() {
                 var bg = [
@@ -171,7 +177,7 @@
                 p.createCanvas(w, h);
                 p.colorMode(p.RGB)
                 p.textFont('Courier')
-                p.noiseSeed(duckieId)
+                p.noiseSeed(duckieIdInput.value)
                 frame = Math.floor(p.random(0, 4))
                 frameW = p.width / 17
                 frameH = p.height / 17
@@ -223,7 +229,7 @@
                         t -= speed / 10
                     }
                 }
-                p.text("#" + duckieId.value.toString(), 10, p.height - 10)
+                p.text("#" + duckieIdInput.value.toString(), 10, p.height - 10)
             }
 
             p.keyPressed = function() {
