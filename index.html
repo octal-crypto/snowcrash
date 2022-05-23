@@ -2,162 +2,245 @@
 <html lang="en">
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
     <style>
         html,
         body {
+            text-align: center;
+            font-size: 20px;
+            text-align: center;
+            font-family: monospace;
+            color:white;
+            background-color: black;
             margin: 0;
             padding: 0;
         }
-
         canvas {
+            margin-left: auto;
+            margin-right: auto;
             display: block;
         }
+        input:hover, select:hover, select:active { border-width:2px; padding:1px; border-color: #ffbf00}
+        input, select, option  {
+            font-family: monospace;
+            color:white;
+            font-size:20px;
+            border-width:1px;
+            padding:2px; 
+            border-color: #dba400;
+            background-color:black;
+            color:inherit;
+            margin: 0px 0px 8px 0px;
+            height: 37px;
+            max-width:250px;
+            width:100%;
+            border-radius: 7px;
+            display: inline-block;
+            box-sizing: border-box;
+            border-style: outset;
+        }
+        #duckieId:invalid {
+            border-color: red;
+        }
+        input:focus, select:focus { outline-width: 0; }
+        label { display: inline-block; width: 150px;text-align: right; margin-right: 10px;}
+        #p5_loading {display: inline-block; margin-top: 10px;}
     </style>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=540">
 </head>
 <body>
+    <h1>SnowCrash + CryptoDuckies</h1>
+    <label for="duckieId">Duckie ID:</label>
+    <input id="duckieId" type="number" min="1" max="5000" placeholder="">
+    <br>
+    <label for="characters">Characters:</label>
+    <select id="characters">
+        <option value="0">Ñ$50c-</option>
+        <option value="1">@97?;,</option>
+        <option value="2">#8£!:.</option>
+        <option value="3">₩42a+_</option>
+        <option value="4">%gm;)'</option>
+        <option value="5">0101/ </option>
+    </select>
+      <br>
+    <label for="noisiness">Noisiness:</label>
+    <select id="noisiness">
+        <option value="0">Very Tight</option>
+        <option value="1">Tight</option>
+        <option value="2">Standard</option>
+        <option value="3">Loose</option>
+    </select>
+    <br>
+    <label for="speed">Speed:</label>
+    <select id="speed">
+        <option value="0">Lazy</option>
+        <option value="1">Regular</option>
+        <option value="2">Quick</option>
+        <option value="3">Speedy Boi</option>
+    </select>
+    <br>
+    <label for="slices">Slices:</label>
+    <select id="slices">
+        <option value="0">Island Plates</option>
+        <option value="1">Fractal</option>
+        <option value="2">Continents</option>
+        <option value="3">Pangea</option>
+    </select>
+    <br>
+    <label for="flow">Flow:</label>
+    <select id="flow">
+        <option value="0">CR4SHED</option>
+        <option value="1">MUT4T3D</option>
+    </select>
+    <br>
     <script>
-        function setup() {
-            //url = getURL();
-            //contents = url.split('x=')
-            //result = contents[1].split('&t=')
-            tokenId = 14//parseInt(atob(result[0]));
-            hash = atob("NjExMjMwMTA=")
-            f = 0
-            charsets = ["Ñ$50c-", "@97?;,", "#8£!:.", "₩42a+_", "%gm;)'", "0101/ "]
-            cols = [0, 1, 2, 4, 5, 6, 7, 8, 9, 11]
-            //fSizes = [12.5, 9, 6, 4.7]
-            noiseEnd = [0.001, 0.002, 0.005, 0.008]
-            speeds = [0.7, 1.2, 2.5, 2.6]
-            textCol = [0, 100]
-            charSpread = [0.06, 0.12, 0.18, 0.24]
+        var duckieIdInput = document.getElementById("duckieId");
+        var charactersInput = document.getElementById("characters");
+        var noisinessInput = document.getElementById("noisiness");
+        var speedInput = document.getElementById("speed");
+        var slicesInput = document.getElementById("slices");
+        var flowInput = document.getElementById("flow");
 
-            t = 0
-            xoff1 = 0
-            yoff1 = 0
-            xyoff = 0
-            n = 0
-            satTwo = 0
-            colTwo = 0
-            looping = true
-            reverse = false
-            w = 540
-            h = 540
-            createCanvas(w, h);
-            colorMode(HSB, 360, 100, 100);
-            textFont('Courier')
-            noiseSeed(tokenId)
-            //bgcolor
-            colOne = cols[parseInt(hash.substring(0, 1))] * 30
-            //frameSize
-            frame = Math.floor(random(0, 4))
-            frameW = width / 17//fSizes[parseInt(hash.substring(1, 2))]
-            frameH = height / 17//fSizes[parseInt(hash.substring(1, 2))]
-            //noisiness
-            end = noiseEnd[parseInt(hash.substring(2, 3))]
-            //speed
-            speed = speeds[parseInt(hash.substring(3, 4))] / (frameW + frameH) / 3
-            //spread
-            spread = charSpread[parseInt(hash.substring(4, 5))]
-            //textCol
-            // brightTwo = textCol[parseInt(hash.substring(5, 6))]
-            //char set
-            chars = parseInt(hash.substring(6, 7))
-            //flow-type
-            flowType = parseInt(hash.substring(7, 8))
-
-            // satOne = 80
-            // if (brightTwo == 100) {
-            //     brightOne = 85
-            // } else {
-            //     brightOne = 100
-            // }
-            // fill(colTwo, satTwo, brightTwo)
-
-            colors = ["#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#72a462", "#72a462", "#72a462", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#000000", "#000000", "#000000", "#000000", "#72a462", "#000000", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#000000", "#642d9a", "#642d9a", "#000000", "#72a462", "#000000", "#642d9a", "#642d9a", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#000000", "#8141bf", "#8141bf", "#000000", "#000000", "#000000", "#8141bf", "#8141bf", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#a68f65", "#a68f65", "#a68f65", "#a68f65", "#a68f65", "#a68f65", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#a68f65", "#a68f65", "#a68f65", "#a68f65", "#000000", "#000000", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#597450", "#72a462", "#72a462", "#72a462", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#000000", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#72a462", "#000000", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96", "#6e7c96"]
+        /** Blends an rgba hex {color} into an rgb {background} **/
+        function _blend(color, background) {
+            const alpha = color[3];
+            const blend = (c,b) => c*(alpha/255) + b*(1-alpha/255);
+            return [
+                blend(color[0],background[0]),
+                blend(color[1],background[1]),
+                blend(color[2],background[2])
+            ];
         }
 
-        function draw() {
-            background("#000000");
-            for (let y = frameH, i=0; y <= height - frameH; y += 10, i++) {
-                for (let x = frameW, j=0; x <= width - frameW; x += 10, j++) {
-                    xoff1 = map(x, frameW, width, 0,end)
-                    yoff1 = map(y, frameH, height, 0,end)
-                    xyoff = xoff1 + yoff1
-                    n = noise(x * xyoff + t, y * xyoff + t,f);
-                    noStroke();
-                    fill(colors[24*int(i/2) + int(j/2)])
-                    if (n > 0.5 + spread*0.80 || n < 0.50 - spread*0.8) {
-                        text(charsets[chars][0],x,y)
-                    } else if (n > 0.5 + spread*0.65 || n < 0.50 - spread*0.65) {
-                        text(charsets[chars][1],x,y)
-                    } else if (n > 0.5 + spread*0.5 || n < 0.50 - spread*0.5) {
-                        text(charsets[chars][2],x,y)
-                    } else if (n > 0.5 + spread*0.35 || n < 0.50 - spread*0.35) {
-                        text(charsets[chars][3],x,y)
-                    } else if (n > 0.5 + spread*0.2 || n < 0.50 - spread*0.2) {
-                        text(charsets[chars][4],x,y)
-                    } else {
-                        text(charsets[chars][5],x,y)
+        var p = null;
+        function resketch() {
+            if (p) p.remove();
+            if (duckieIdInput.value >=1 && duckieIdInput.value <= 5000) {
+                p = new p5(sketch);
+            }
+        }
+
+        duckieIdInput.onmouseleave = resketch;
+        duckieIdInput.onchange = resketch;
+        charactersInput.onchange = resketch;
+        noisinessInput.onchange = resketch;
+        speedInput.onchange = resketch;
+        slicesInput.onchange = resketch;
+        flowInput.onchange = resketch;
+
+        charsets = ["Ñ$50c-", "@97?;,", "#8£!:.", "₩42a+_", "%gm;)'", "0101/ "]
+        noiseEnd = [0.001, 0.002, 0.005, 0.008]
+        speeds = [0.7, 1.2, 2.5, 2.6]
+        textCol = [0, 100]
+        charSpread = [0.06, 0.12, 0.18, 0.24]
+
+        function sketch(p) {
+            p.preload = function() {
+                duckie = p.loadJSON("https://octal-crypto.github.io/crypto-duckies/duckies/duckie"+duckieId.value+".json");
+            }
+            p.setup = function() {
+                var bg = [
+                    parseInt(duckie.backgroundColor.slice(2,4), 16),
+                    parseInt(duckie.backgroundColor.slice(4,6), 16),
+                    parseInt(duckie.backgroundColor.slice(6,8), 16),
+                ];
+
+                pixels = [];
+                for (var i=2; i < duckie.imagePixels.length; i+=8) {
+                    var color = [
+                        parseInt(duckie.imagePixels.slice(i, i+2), 16),
+                        parseInt(duckie.imagePixels.slice(i+2, i+4), 16),
+                        parseInt(duckie.imagePixels.slice(i+4, i+6), 16),
+                        parseInt(duckie.imagePixels.slice(i+6, i+8), 16)
+                    ];
+                    pixels.push(_blend(color, bg));
+                }
+                f = 0
+                t = 0
+                xoff1 = 0
+                yoff1 = 0
+                xyoff = 0
+                n = 0
+                satTwo = 0
+                colTwo = 0
+                looping = true
+                reverse = false
+                w = 540
+                h = 540
+                p.createCanvas(w, h);
+                p.colorMode(p.RGB)
+                p.textFont('Courier')
+                p.noiseSeed(duckieId)
+                frame = Math.floor(p.random(0, 4))
+                frameW = p.width / 17
+                frameH = p.height / 17
+                end = noiseEnd[noisinessInput.value]
+                speed = speeds[speedInput.value] / (frameW + frameH) / 3
+                spread = charSpread[slicesInput.value]
+                chars = charactersInput.value
+                flowType = flowInput.value
+            }
+
+            p.draw = function() {
+                p.background("#000000");
+                for (let y = frameH, i=0; y <= p.height - frameH; y += 10, i++) {
+                    for (let x = frameW, j=0; x <= p.width - frameW; x += 10, j++) {
+                        xoff1 = p.map(x, frameW, p.width, 0,end)
+                        yoff1 = p.map(y, frameH, p.height, 0,end)
+                        xyoff = xoff1 + yoff1
+                        n = p.noise(x * xyoff + t, y * xyoff + t,f);
+                        p.noStroke();
+                        p.fill(p.color(pixels[24*p.int(i/2) + p.int(j/2)]))
+                        if (n > 0.5 + spread*0.80 || n < 0.50 - spread*0.8) {
+                            p.text(charsets[chars][0],x,y)
+                        } else if (n > 0.5 + spread*0.65 || n < 0.50 - spread*0.65) {
+                            p.text(charsets[chars][1],x,y)
+                        } else if (n > 0.5 + spread*0.5 || n < 0.50 - spread*0.5) {
+                            p.text(charsets[chars][2],x,y)
+                        } else if (n > 0.5 + spread*0.35 || n < 0.50 - spread*0.35) {
+                            p.text(charsets[chars][3],x,y)
+                        } else if (n > 0.5 + spread*0.2 || n < 0.50 - spread*0.2) {
+                            p.text(charsets[chars][4],x,y)
+                        } else {
+                            p.text(charsets[chars][5],x,y)
+                        }
                     }
                 }
-            }
-            if (reverse == false) {
-                if (flowType == 0) {
-                    t += speed
+                if (reverse == false) {
+                    if (flowType == 0) {
+                        t += speed
+                    } else {
+                        f += speed
+                        t += speed / 10
+                    }
+
                 } else {
-                    f += speed
-                    t += speed / 10
+                    if (flowType == 0) {
+                        t -= speed
+                    } else {
+                        f -= speed
+                        t -= speed / 10
+                    }
                 }
-
-            } else {
-                if (flowType == 0) {
-                    t -= speed
-                } else {
-                    f -= speed
-                    t -= speed / 10
-                }
+                p.text("#" + duckieId.value.toString(), 10, p.height - 10)
             }
-            text("#" + tokenId.toString(), 10, height - 10)
-        }
 
-        // function mouseClicked() {
-        //     buffCol = colOne
-        //     buffSat = satOne
-        //     buffBright = brightOne
-
-        //     colOne = colTwo
-        //     satOne = satTwo
-        //     brightOne = brightTwo
-
-        //     colTwo = buffCol
-        //     satTwo = buffSat
-        //     brightTwo = buffBright
-        // }
-
-        function keyPressed() {
-            if (keyCode === 32 && looping == true) {
-                noLoop();
-                looping = false
-            } else if (keyCode === LEFT_ARROW) {
-                reverse = false;
-                loop()
-                looping = true;
-            } else if (keyCode === RIGHT_ARROW) {
-                reverse = true;
-                loop()
-                looping = true
-                // } else if (keyCode === UP_ARROW) {
-                //     resizeCanvas(750, 250)
-                // } else if (keyCode === DOWN_ARROW) {
-                //     resizeCanvas(500, 500)
-                // } else if (keyCode === 16) {
-                //     resizeCanvas(350, 600)
-            } else {
-                loop()
-                looping = true
+            p.keyPressed = function() {
+                if (p.keyCode === 32 && looping == true) {
+                    p.noLoop();
+                    looping = false
+                } else if (p.keyCode === p.LEFT_ARROW) {
+                    reverse = false;
+                    p.loop()
+                    looping = true;
+                } else if (p.keyCode === p.RIGHT_ARROW) {
+                    reverse = true;
+                    p.loop()
+                    looping = true
+                } else {
+                    p.loop()
+                    looping = true
+                }
             }
         }
     </script>
