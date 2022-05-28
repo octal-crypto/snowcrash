@@ -166,7 +166,7 @@
         }
 
         // Update the query and sketch when the inputs change
-        function onInputChange() { refreshQuery(); resketch(); }
+        function onInputChange() { refreshQuery(); if (!converting) resketch(); }
         idInput.onchange = onInputChange;
         charsInput.onchange = onInputChange;
         noiseInput.onchange = onInputChange;
@@ -221,7 +221,7 @@
             }
             // Start recording
             else {
-                capturer = new CCapture( { format: 'gif', workersPath: './', frameRate: 1, quality:90, onProgress:
+                capturer = new CCapture( { format: 'gif', workersPath: './', quality:100, onProgress:
                     function(progress) {infoSpan.textContent = "Converting (" + Math.round(progress * 100) + "%)";}});
                 frames=0;
                 recording = true;
@@ -360,7 +360,8 @@
                 // Capture the frame if we're recording a GIF
                 if (recording) {
                     if (frames++ == 0) capturer.start();
-                    capturer.capture(canvas);
+                    try { capturer.capture(canvas); }
+                    catch { recordGifButton.click(); } // IOS has a memory limit
                     infoSpan.textContent = recording ? "Recording (" + frames +  ")" : "\xa0";
                 }
             }
