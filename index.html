@@ -42,14 +42,14 @@
                 color:inherit;
                 margin: 0px 0px 8px 0px;
                 height: 37px;
-                max-width:250px;
+                max-width:260px;
                 width:100%;
                 border-radius: 7px;
                 display: inline-block;
                 box-sizing: border-box;
                 border-style: outset;
             }
-            #fsInput, #recordGif { max-width: 205px; }
+            #fsInput, #recordGif { max-width: 210px; }
             #idInput:invalid { border-color: red; }
             input:focus, select:focus { outline-width: 0; }
             label { display: inline-block; width: 150px;text-align: right; margin-right: 10px;}
@@ -221,7 +221,7 @@
             }
             // Start recording
             else {
-                capturer = new CCapture( { format: 'gif', workersPath: './', quality:90, onProgress:
+                capturer = new CCapture( { format: 'gif', workersPath: './', quality:95, onProgress:
                     function(progress) {infoSpan.textContent = "Converting (" + Math.round(progress * 100) + "%)";}});
                 frames=0;
                 recording = true;
