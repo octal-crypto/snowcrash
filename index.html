@@ -221,7 +221,7 @@
             }
             // Start recording
             else {
-                capturer = new CCapture( { format: 'gif', workersPath: './', quality:100, onProgress:
+                capturer = new CCapture( { format: 'gif', workersPath: './', quality:95, onProgress:
                     function(progress) {infoSpan.textContent = "Converting (" + Math.round(progress * 100) + "%)";}});
                 frames=0;
                 recording = true;
