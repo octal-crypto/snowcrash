@@ -190,24 +190,30 @@
         }
 
         // Setup GIF recording
-        var frames = 0, recording = false, converting = false;
+        var frames=0, recording=false, converting=false;
         recordGifButton.onclick = function() {
+            // Start recording
+            if (!recording && !converting) {
+                capturer = new CCapture( { format: 'gif', workersPath: './', quality:100, onProgress:
+                    function(progress) {infoSpan.textContent = "Converting (" + Math.round(progress * 100) + "%)"}});
+                capturer.start();
+                frames=0;
+                recording = true;
+            }
             // Done recording
-            if (recording) {
+            else if (recording) {
                 recording = false;
                 converting = true;
                 capturer.stop();
 
-                // Convert to GIF
+                // Stop rendering to improve GIF conversion performance
                 p5js.remove();
-                pausedDiv.style = "display:block";
+
+                // Convert to GIF
                 abort = capturer.save(function (blob) {
                     converting = false;
                     download(blob, "Duckie-" + duckieId + ".gif", "image/gif");
-                    recordGifButton.textContent = "Record GIF";
-                    fsInput.style = "display:inline-block";
-                    infoSpan.style = "display:none";
-                    pausedDiv.style = "display:none";
+                    refreshUi();
                     resketch();
                 });
             }
@@ -215,21 +221,17 @@
             else if (converting)
             {
                 converting=false;
-                pausedDiv.style = "display:none";
                 abort();
                 resketch();
             }
-            // Start recording
-            else {
-                capturer = new CCapture( { format: 'gif', workersPath: './', quality:100, onProgress:
-                    function(progress) {infoSpan.textContent = "Converting (" + Math.round(progress * 100) + "%)";}});
-                frames=0;
-                recording = true;
-            }
+            refreshUi();
 
-            recordGifButton.textContent = recording ? "Stop Recording" : converting ? "Cancel Conversion" : "Record GIF";
-            infoSpan.style = "display:" + ((recording || converting) ? "inline-block" : "none");
-            fsInput.style = "display:" + ((recording || converting) ? "none" : "inline-block");
+            function refreshUi() {
+                recordGifButton.textContent = recording ? "Stop Recording" : converting ? "Cancel Conversion" : "Record GIF";
+                infoSpan.style = "display:" + ((recording || converting) ? "inline-block" : "none");
+                fsInput.style = "display:" + ((recording || converting) ? "none" : "inline-block");
+                pausedDiv.style = "display:" + (converting ? "block" : "none");
+            }
         }
 
         // Blends an rgba hex {color} into an rgb {background}
@@ -360,9 +362,8 @@
 
                 // Capture the frame if we're recording a GIF
                 if (recording) {
-                    if (frames++ == 0) capturer.start();
                     capturer.capture(canvas);
-                    infoSpan.textContent = recording ? "Recording (" + frames +  ")" : "\xa0";
+                    infoSpan.textContent = recording ? "Recording (" + (frames++) +  ")" : "\xa0";
                 }
             }
 
