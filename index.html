@@ -161,10 +161,11 @@
                     var show = // valid non-default values
                         c.value > parseInt(c.getAttribute("data-min")) &&
                         c.value <= parseInt(c.getAttribute("data-max"));
-                    return p + (!show ? "" : ((p=="/"?"?":"&") + c.id.slice(0,c.id.length-5)+ "=" + c.value));
-                }, "/");
-                if (replace) history.replaceState(query, null, query);
-                else if (query != history.state) history.pushState(query, null, query);
+                    return p + (show ? ((p?"&":"?") + c.id.slice(0,-5) + "=" + c.value):"");
+                }, "");
+                var url = location.pathname + query;
+                if (replace) history.replaceState(url, null, url);
+                else if (query != history.state) history.pushState(url, null, url);
             }
 
             // Update the query and sketch when the inputs change
