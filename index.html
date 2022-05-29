@@ -200,7 +200,6 @@
                 if (!recording && !converting) {
                     capturer = new CCapture( { format: 'gif', workersPath: './', quality:100, onProgress:
                         function(progress) {infoSpan.textContent = "Converting (" + Math.round(progress * 100) + "%)"}});
-                    capturer.start();
                     frames=0;
                     recording = true;
                 }
@@ -365,8 +364,9 @@
 
                     // Capture the frame if we're recording a GIF
                     if (recording) {
+                        if (frames++ == 0) capturer.start();
                         capturer.capture(canvas);
-                        infoSpan.textContent = recording ? "Recording (" + (frames++) +  ")" : "\xa0";
+                        infoSpan.textContent = recording ? "Recording (" + (frames) +  ")" : "\xa0";
                     }
                 }
 
