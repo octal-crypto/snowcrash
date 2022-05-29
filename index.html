@@ -63,10 +63,10 @@
         <div id="settings">
             <h1>SnowCrash + CryptoDuckies</h1>
             <label for="idInput">Duckie ID:</label>
-            <input id="idInput" type="number" min="1" max="5000" value="1">
+            <input id="idInput" type="number" min="1" data-min="1" max="5000" data-max="5000" value="1">
             <br>
             <label for="charsInput">Characters:</label>
-            <select id="charsInput" min="0" max="5">
+            <select id="charsInput" data-min="0" data-max="5">
                 <option value="0">Ñ$50c-</option>
                 <option value="1">@97?;,</option>
                 <option value="2">#8£!:.</option>
@@ -76,7 +76,7 @@
             </select>
             <br>
             <label for="noiseInput">Noisiness:</label>
-            <select id="noiseInput" min="0" max="3">
+            <select id="noiseInput" data-min="0" data-max="3">
                 <option value="0">Very Tight</option>
                 <option value="1">Tight</option>
                 <option value="2">Standard</option>
@@ -84,7 +84,7 @@
             </select>
             <br>
             <label for="speedInput">Speed:</label>
-            <select id="speedInput" min="0" max="3">
+            <select id="speedInput" data-min="0" data-max="3">
                 <option value="0">Lazy</option>
                 <option value="1">Regular</option>
                 <option value="2">Quick</option>
@@ -92,7 +92,7 @@
             </select>
             <br>
             <label for="slicesInput">Slices:</label>
-            <select id="slicesInput" min="0" max="3">
+            <select id="slicesInput" data-min="0" data-max="3">
                 <option value="0">Island Plates</option>
                 <option value="1">Fractal</option>
                 <option value="2">Continents</option>
@@ -100,290 +100,293 @@
             </select>
             <br>
             <label for="flowInput">Flow:</label>
-            <select id="flowInput" min="0" max="1">
+            <select id="flowInput" data-min="0" data-max="1">
                 <option value="0">CR4SHED</option>
                 <option value="1">MUT4T3D</option>
             </select>
             <br>
             <span id="info">Recording (0%)</span>
-            <button id="fsInput" min="0" max="1" >Fullscreen</button>
+            <button id="fsInput" data-min="0" data-max="1" >Fullscreen</button>
             <button id="recordGif">Record GIF</button>
             <div id="paused">Rendering paused to improve performance</div>
         </div>
-    </body>
-    <script>
-        // DOM elements
-        var settingsDiv = document.getElementById("settings");
-        var idInput = document.getElementById("idInput");
-        var charsInput = document.getElementById("charsInput");
-        var noiseInput = document.getElementById("noiseInput");
-        var speedInput = document.getElementById("speedInput");
-        var slicesInput = document.getElementById("slicesInput");
-        var flowInput = document.getElementById("flowInput");
-        var fsInput = document.getElementById("fsInput");
-        var recordGifButton = document.getElementById("recordGif");
-        var infoSpan = document.getElementById("info");
-        var pausedDiv = document.getElementById("paused");
-        var inputs = Array.from(document.getElementsByTagName("input"))
-             .concat(Array.from(document.getElementsByTagName("select")))
-             .concat(Array.from(document.getElementsByTagName("button")));
+        <script>
+            // DOM elements
+            var settingsDiv = document.getElementById("settings");
+            var idInput = document.getElementById("idInput");
+            var charsInput = document.getElementById("charsInput");
+            var noiseInput = document.getElementById("noiseInput");
+            var speedInput = document.getElementById("speedInput");
+            var slicesInput = document.getElementById("slicesInput");
+            var flowInput = document.getElementById("flowInput");
+            var fsInput = document.getElementById("fsInput");
+            var recordGifButton = document.getElementById("recordGif");
+            var infoSpan = document.getElementById("info");
+            var pausedDiv = document.getElementById("paused");
+            var inputs = Array.from(document.getElementsByTagName("input"))
+                .concat(Array.from(document.getElementsByTagName("select")))
+                .concat(Array.from(document.getElementsByTagName("button")));
 
-        // Updates inputs with values from the URL query string
-        function refreshInputs() {
+            // Updates inputs with values from the URL query string
+            function refreshInputs() {
 
-            // Reset all inputs
-            inputs.forEach(function(input) {
-                var min = input.attributes["min"];
-                if (min !== undefined) input.value = min.value;
-            });
-
-            // Parse the query
-            var q = window.location.href.lastIndexOf("?");
-            if (q > -1) {
-                var query = decodeURIComponent(window.location.href.slice(q+1));
-                var settings = query.split("&");
-                for (var i=0; i < settings.length; i++) {
-                    var setting = settings[i].split("=");
-
-                    // Update inputs with valid query values
-                    var input = document.getElementById(setting[0] + "Input");
-                    if (input && setting[1] >= parseInt(input.attributes["min"].value)
-                              && setting[1] <= parseInt(input.attributes["max"].value))
-                    {
-                        input.value = setting[1];
-                    }
-                }
-            }
-        }
-
-        // Generates a URL query string from the inputs
-        function refreshQuery(replace) {
-            var query = inputs.reduce(function(p,c) { return p + (c.value > 0 ?
-                ((p?"&":"?") + c.id.slice(0,c.id.length-5)+ "=" + c.value):"")},"");
-
-            if (replace) history.replaceState(query, null, query);
-            else if (query != history.state) history.pushState(query, null, query);
-        }
-
-        // Update the query and sketch when the inputs change
-        function onInputChange() { refreshQuery(); if (!converting) resketch(); }
-        idInput.onchange = onInputChange;
-        charsInput.onchange = onInputChange;
-        noiseInput.onchange = onInputChange;
-        speedInput.onchange = onInputChange;
-        slicesInput.onchange = onInputChange;
-        flowInput.onchange = onInputChange;
-        idInput.onmouseleave = function() { if (duckieId != idInput.value) onInputChange(); }
-
-        // Re-render on browser back button
-        window.addEventListener("popstate",
-            function(event) { refreshInputs(); refreshFullscreen(); resketch(); });
-
-        // Toggle full screen
-        fsInput.onclick = function() {
-            fsInput.value = (fsInput.value = "0" ? "1" : "0");
-            refreshFullscreen();
-            refreshQuery();
-        }
-        function refreshFullscreen() {
-            settingsDiv.style = "display:" + (fsInput.value == "0" ? "block" : "none");
-        }
-
-        // Setup GIF recording
-        var frames=0, recording=false, converting=false;
-        recordGifButton.onclick = function() {
-            // Start recording
-            if (!recording && !converting) {
-                capturer = new CCapture( { format: 'gif', workersPath: './', quality:100, onProgress:
-                    function(progress) {infoSpan.textContent = "Converting (" + Math.round(progress * 100) + "%)"}});
-                capturer.start();
-                frames=0;
-                recording = true;
-            }
-            // Done recording
-            else if (recording) {
-                recording = false;
-                converting = true;
-                capturer.stop();
-
-                // Stop rendering to improve GIF conversion performance
-                p5js.remove();
-
-                // Convert to GIF
-                abort = capturer.save(function (blob) {
-                    converting = false;
-                    download(blob, "Duckie-" + duckieId + ".gif", "image/gif");
-                    refreshUi();
-                    resketch();
+                // Reset all inputs
+                inputs.forEach(function(input) {
+                    var min = input.getAttribute("data-min");
+                    if (min != null) input.value = min;
                 });
-            }
-            // Cancel GIF conversion
-            else if (converting)
-            {
-                converting=false;
-                abort();
-                resketch();
-            }
-            refreshUi();
 
-            function refreshUi() {
-                recordGifButton.textContent = recording ? "Stop Recording" : converting ? "Cancel Conversion" : "Record GIF";
-                infoSpan.style = "display:" + ((recording || converting) ? "inline-block" : "none");
-                fsInput.style = "display:" + ((recording || converting) ? "none" : "inline-block");
-                pausedDiv.style = "display:" + (converting ? "block" : "none");
-            }
-        }
+                // Parse the query
+                var q = window.location.href.lastIndexOf("?");
+                if (q > -1) {
+                    var query = decodeURIComponent(window.location.href.slice(q+1));
+                    var settings = query.split("&");
+                    for (var i=0; i < settings.length; i++) {
+                        var setting = settings[i].split("=");
 
-        // Blends an rgba hex {color} into an rgb {background}
-        function _blend(color, background) {
-            const alpha = color[3];
-            const blend = (c,b) => c*(alpha/255) + b*(1-alpha/255);
-            return [
-                blend(color[0],background[0]),
-                blend(color[1],background[1]),
-                blend(color[2],background[2])
-            ];
-        }
-
-        // Global p5js variables
-        charsets = ["Ñ$50c-", "@97?;,", "#8£!:.", "₩42a+_", "%gm;)'", "0101/ "]
-        noiseEnd = [0.001, 0.002, 0.005, 0.008]
-        speeds = [0.7, 1.2, 2.5, 2.6]
-        textCol = [0, 100]
-        charSpread = [0.06, 0.12, 0.18, 0.24]
-
-        // Re-creates the p5js instance
-        var p5js = null;
-        function resketch() {
-            if (idInput.value < 1 || idInput.value > 5000) return;
-            if (p5js) p5js.remove();
-            p5js = new p5(sketch);
-        }
-
-        // Initialize and sketch
-        var duckieId = null;
-        refreshInputs();
-        refreshFullscreen(); 
-        refreshQuery(true); // Normalize the query in case it's invalid
-        resketch();
-
-        function sketch(p5js) {
-            p5js.preload = function() {
-                if (duckieId != idInput.value) {
-                    duckieId = idInput.value;
-                    duckie = p5js.loadJSON("https://octal-crypto.github.io/crypto-duckies/duckies/duckie"+duckieId+".json");
-                }
-            }
-            p5js.setup = function() {
-                canvas = document.getElementsByTagName("canvas").item(0);
-                var bg = [
-                    parseInt(duckie.backgroundColor.slice(2,4), 16),
-                    parseInt(duckie.backgroundColor.slice(4,6), 16),
-                    parseInt(duckie.backgroundColor.slice(6,8), 16),
-                ];
-                pixels = [];
-                for (var i=2; i < duckie.imagePixels.length; i+=8) {
-                    var color = [
-                        parseInt(duckie.imagePixels.slice(i, i+2), 16),
-                        parseInt(duckie.imagePixels.slice(i+2, i+4), 16),
-                        parseInt(duckie.imagePixels.slice(i+4, i+6), 16),
-                        parseInt(duckie.imagePixels.slice(i+6, i+8), 16)
-                    ];
-                    pixels.push(_blend(color, bg));
-                }
-
-                f = 0
-                t = 0
-                xoff1 = 0
-                yoff1 = 0
-                xyoff = 0
-                n = 0
-                satTwo = 0
-                colTwo = 0
-                looping = true
-                reverse = false
-                w = 540
-                h = 540
-                p5js.pixelDensity(1);
-                p5js.createCanvas(w, h);
-                p5js.colorMode(p5js.RGB)
-                p5js.textFont('Courier')
-                p5js.noiseSeed(duckieId)
-                frameW = p5js.width / 17
-                frameH = p5js.height / 17
-                end = noiseEnd[noiseInput.value]
-                speed = speeds[speedInput.value] / (frameW + frameH) / 3
-                spread = charSpread[slicesInput.value]
-                chars = charsInput.value
-                flowType = flowInput.value
-            }
-
-            p5js.draw = function() {
-                p5js.background("#000000");
-                for (let y = frameH, i=0; y <= p5js.height - frameH; y += 10, i++) {
-                    for (let x = frameW, j=0; x <= p5js.width - frameW; x += 10, j++) {
-                        xoff1 = p5js.map(x, frameW, p5js.width, 0,end)
-                        yoff1 = p5js.map(y, frameH, p5js.height, 0,end)
-                        xyoff = xoff1 + yoff1
-                        n = p5js.noise(x * xyoff + t, y * xyoff + t,f);
-                        p5js.noStroke();
-                        p5js.fill(p5js.color(pixels[24*p5js.int(i/2) + p5js.int(j/2)]))
-                        if (n > 0.5 + spread*0.80 || n < 0.50 - spread*0.8) {
-                            p5js.text(charsets[chars][0],x,y)
-                        } else if (n > 0.5 + spread*0.65 || n < 0.50 - spread*0.65) {
-                            p5js.text(charsets[chars][1],x,y)
-                        } else if (n > 0.5 + spread*0.5 || n < 0.50 - spread*0.5) {
-                            p5js.text(charsets[chars][2],x,y)
-                        } else if (n > 0.5 + spread*0.35 || n < 0.50 - spread*0.35) {
-                            p5js.text(charsets[chars][3],x,y)
-                        } else if (n > 0.5 + spread*0.2 || n < 0.50 - spread*0.2) {
-                            p5js.text(charsets[chars][4],x,y)
-                        } else {
-                            p5js.text(charsets[chars][5],x,y)
+                        // Update inputs with valid query values
+                        var input = document.getElementById(setting[0] + "Input");
+                        if (input && setting[1] >= parseInt(input.getAttribute("data-min"))
+                                  && setting[1] <= parseInt(input.getAttribute("data-max")))
+                        {
+                            input.value = setting[1];
                         }
                     }
                 }
-                if (reverse == false) {
-                    if (flowType == 0) {
-                        t += speed
-                    } else {
-                        f += speed
-                        t += speed / 10
-                    }
-                } else {
-                    if (flowType == 0) {
-                        t -= speed
-                    } else {
-                        f -= speed
-                        t -= speed / 10
-                    }
-                }
-                p5js.text("#" + duckieId, 10, p5js.height - 10);
+            }
 
-                // Capture the frame if we're recording a GIF
-                if (recording) {
-                    capturer.capture(canvas);
-                    infoSpan.textContent = recording ? "Recording (" + (frames++) +  ")" : "\xa0";
+            // Generates a URL query string from the inputs
+            function refreshQuery(replace) {
+                var query = inputs.reduce(function(p,c) {
+                    var show = // valid non-default values
+                        c.value > parseInt(c.getAttribute("data-min")) &&
+                        c.value <= parseInt(c.getAttribute("data-max"));
+                    return p + (!show ? "" : ((p=="/"?"?":"&") + c.id.slice(0,c.id.length-5)+ "=" + c.value));
+                }, "/");
+                if (replace) history.replaceState(query, null, query);
+                else if (query != history.state) history.pushState(query, null, query);
+            }
+
+            // Update the query and sketch when the inputs change
+            function onInputChange() { refreshQuery(); if (!converting) resketch(); }
+            charsInput.onchange = onInputChange;
+            noiseInput.onchange = onInputChange;
+            speedInput.onchange = onInputChange;
+            slicesInput.onchange = onInputChange;
+            flowInput.onchange = onInputChange;
+            idInput.onchange = idInput.onmouseleave = function() {
+                if (idInput.validity.valid && duckie.id != idInput.value) onInputChange();
+            }
+
+            // Re-render on browser back button
+            window.addEventListener("popstate",
+                function(event) { refreshInputs(); refreshFullscreen(); resketch(); });
+
+            // Toggle full screen
+            fsInput.onclick = function() {
+                fsInput.value = (fsInput.value = "0" ? "1" : "0");
+                refreshFullscreen();
+                refreshQuery();
+            }
+            function refreshFullscreen() {
+                settingsDiv.style = "display:" + (fsInput.value == "0" ? "block" : "none");
+            }
+
+            // Setup GIF recording
+            var frames=0, recording=false, converting=false;
+            recordGifButton.onclick = function() {
+                // Start recording
+                if (!recording && !converting) {
+                    capturer = new CCapture( { format: 'gif', workersPath: './', quality:100, onProgress:
+                        function(progress) {infoSpan.textContent = "Converting (" + Math.round(progress * 100) + "%)"}});
+                    capturer.start();
+                    frames=0;
+                    recording = true;
+                }
+                // Done recording
+                else if (recording) {
+                    recording = false;
+                    converting = true;
+                    capturer.stop();
+
+                    // Stop rendering to improve GIF conversion performance
+                    p5js.remove();
+
+                    // Convert to GIF
+                    abort = capturer.save(function (blob) {
+                        converting = false;
+                        download(blob, "Duckie-" + duckie.id + ".gif", "image/gif");
+                        refreshUi();
+                        resketch();
+                    });
+                }
+                // Cancel GIF conversion
+                else if (converting)
+                {
+                    converting=false;
+                    abort();
+                    resketch();
+                }
+                refreshUi();
+
+                function refreshUi() {
+                    recordGifButton.textContent = recording ? "Stop Recording" : converting ? "Cancel Conversion" : "Record GIF";
+                    infoSpan.style = "display:" + ((recording || converting) ? "inline-block" : "none");
+                    fsInput.style = "display:" + ((recording || converting) ? "none" : "inline-block");
+                    pausedDiv.style = "display:" + (converting ? "block" : "none");
                 }
             }
 
-            p5js.keyPressed = function() {
-                if (p5js.keyCode === 32 && looping == true) {
-                    p5js.noLoop();
-                    looping = false
-                } else if (p5js.keyCode === p5js.LEFT_ARROW) {
-                    reverse = false;
-                    p5js.loop()
-                    looping = true;
-                } else if (p5js.keyCode === p5js.RIGHT_ARROW) {
-                    reverse = true;
-                    p5js.loop()
+            // Blends an rgba hex {color} into an rgb {background}
+            function _blend(color, background) {
+                const alpha = color[3];
+                const blend = (c,b) => c*(alpha/255) + b*(1-alpha/255);
+                return [
+                    blend(color[0],background[0]),
+                    blend(color[1],background[1]),
+                    blend(color[2],background[2])
+                ];
+            }
+
+            // Global p5js variables
+            charsets = ["Ñ$50c-", "@97?;,", "#8£!:.", "₩42a+_", "%gm;)'", "0101/ "]
+            noiseEnd = [0.001, 0.002, 0.005, 0.008]
+            speeds = [0.7, 1.2, 2.5, 2.6]
+            textCol = [0, 100]
+            charSpread = [0.06, 0.12, 0.18, 0.24]
+
+            // Re-creates the p5js instance
+            var p5js = null;
+            function resketch() {
+                if (p5js) p5js.remove();
+                p5js = new p5(sketch);
+            }
+
+            // Initialize and sketch
+            var duckie = {};
+            refreshInputs();
+            refreshFullscreen(); 
+            refreshQuery(true); // Normalize the query in case it's invalid
+            resketch();
+
+            function sketch(p5js) {
+                p5js.preload = function() {
+                    // Only fetch when the duckie changes
+                    if (duckie.id != idInput.value && idInput.validity.valid) {
+                        duckie = p5js.loadJSON("https://octal-crypto.github.io/crypto-duckies/duckies/duckie"+idInput.value+".json");
+                    }
+                }
+                p5js.setup = function() {
+                    canvas = document.getElementsByTagName("canvas").item(0);
+                    var bg = [
+                        parseInt(duckie.backgroundColor.slice(2,4), 16),
+                        parseInt(duckie.backgroundColor.slice(4,6), 16),
+                        parseInt(duckie.backgroundColor.slice(6,8), 16),
+                    ];
+                    pixels = [];
+                    for (var i=2; i < duckie.imagePixels.length; i+=8) {
+                        var color = [
+                            parseInt(duckie.imagePixels.slice(i, i+2), 16),
+                            parseInt(duckie.imagePixels.slice(i+2, i+4), 16),
+                            parseInt(duckie.imagePixels.slice(i+4, i+6), 16),
+                            parseInt(duckie.imagePixels.slice(i+6, i+8), 16)
+                        ];
+                        pixels.push(_blend(color, bg));
+                    }
+
+                    f = 0
+                    t = 0
+                    xoff1 = 0
+                    yoff1 = 0
+                    xyoff = 0
+                    n = 0
+                    satTwo = 0
+                    colTwo = 0
                     looping = true
-                } else {
-                    p5js.loop()
-                    looping = true
+                    reverse = false
+                    w = 540
+                    h = 540
+                    p5js.pixelDensity(1);
+                    p5js.createCanvas(w, h);
+                    p5js.colorMode(p5js.RGB)
+                    p5js.textFont('Courier')
+                    p5js.noiseSeed(duckie.id)
+                    frameW = p5js.width / 17
+                    frameH = p5js.height / 17
+                    end = noiseEnd[noiseInput.value]
+                    speed = speeds[speedInput.value] / (frameW + frameH) / 3
+                    spread = charSpread[slicesInput.value]
+                    chars = charsInput.value
+                    flowType = flowInput.value
+                }
+
+                p5js.draw = function() {
+                    p5js.background("#000000");
+                    for (let y = frameH, i=0; y <= p5js.height - frameH; y += 10, i++) {
+                        for (let x = frameW, j=0; x <= p5js.width - frameW; x += 10, j++) {
+                            xoff1 = p5js.map(x, frameW, p5js.width, 0,end)
+                            yoff1 = p5js.map(y, frameH, p5js.height, 0,end)
+                            xyoff = xoff1 + yoff1
+                            n = p5js.noise(x * xyoff + t, y * xyoff + t,f);
+                            p5js.noStroke();
+                            p5js.fill(p5js.color(pixels[24*p5js.int(i/2) + p5js.int(j/2)]))
+                            if (n > 0.5 + spread*0.80 || n < 0.50 - spread*0.8) {
+                                p5js.text(charsets[chars][0],x,y)
+                            } else if (n > 0.5 + spread*0.65 || n < 0.50 - spread*0.65) {
+                                p5js.text(charsets[chars][1],x,y)
+                            } else if (n > 0.5 + spread*0.5 || n < 0.50 - spread*0.5) {
+                                p5js.text(charsets[chars][2],x,y)
+                            } else if (n > 0.5 + spread*0.35 || n < 0.50 - spread*0.35) {
+                                p5js.text(charsets[chars][3],x,y)
+                            } else if (n > 0.5 + spread*0.2 || n < 0.50 - spread*0.2) {
+                                p5js.text(charsets[chars][4],x,y)
+                            } else {
+                                p5js.text(charsets[chars][5],x,y)
+                            }
+                        }
+                    }
+                    if (reverse == false) {
+                        if (flowType == 0) {
+                            t += speed
+                        } else {
+                            f += speed
+                            t += speed / 10
+                        }
+                    } else {
+                        if (flowType == 0) {
+                            t -= speed
+                        } else {
+                            f -= speed
+                            t -= speed / 10
+                        }
+                    }
+                    p5js.text("#" + duckie.id, 10, p5js.height - 10);
+
+                    // Capture the frame if we're recording a GIF
+                    if (recording) {
+                        capturer.capture(canvas);
+                        infoSpan.textContent = recording ? "Recording (" + (frames++) +  ")" : "\xa0";
+                    }
+                }
+
+                p5js.keyPressed = function() {
+                    if (p5js.keyCode === 32 && looping == true) {
+                        p5js.noLoop();
+                        looping = false
+                    } else if (p5js.keyCode === p5js.LEFT_ARROW) {
+                        reverse = false;
+                        p5js.loop()
+                        looping = true;
+                    } else if (p5js.keyCode === p5js.RIGHT_ARROW) {
+                        reverse = true;
+                        p5js.loop()
+                        looping = true
+                    } else {
+                        p5js.loop()
+                        looping = true
+                    }
                 }
             }
-        }
-    </script>
+        </script>
+    </body>
 </html>
