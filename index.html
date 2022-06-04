@@ -273,7 +273,7 @@
                 p5js.preload = function() {
                     // Only fetch when the duckie changes
                     if (duckie.id != idInput.value && idInput.validity.valid) {
-                        duckie = p5js.loadJSON("https://octal-crypto.github.io/crypto-duckies/duckies/duckie"+idInput.value+".json");
+                        duckie = p5js.loadJSON("https://octal-crypto.github.io/crypto-duckies/data/duckie"+idInput.value+".json");
                     }
                 }
                 p5js.setup = function() {
