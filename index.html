@@ -106,7 +106,7 @@
             </select>
             <br>
             <span id="info">Recording (0%)</span>
-            <button id="fsInput" data-min="0" data-max="1" >Fullscreen</button>
+            <button id="fsInput" data-min="0" data-max="1">Fullscreen</button>
             <button id="recordGif">Record GIF</button>
             <div id="paused">Rendering paused to improve performance</div>
         </div>
@@ -126,6 +126,10 @@
             var inputs = Array.from(document.getElementsByTagName("input"))
                 .concat(Array.from(document.getElementsByTagName("select")))
                 .concat(Array.from(document.getElementsByTagName("button")));
+            function inputValid(i) {
+                return i && parseInt(i.value) >= parseInt(i.getAttribute("data-min")) &&
+                            parseInt(i.value) <= parseInt(i.getAttribute("data-max"));
+            }
 
             // Updates inputs with values from the URL query string
             function refreshInputs() {
@@ -146,11 +150,7 @@
 
                         // Update inputs with valid query values
                         var input = document.getElementById(setting[0] + "Input");
-                        if (input && setting[1] >= parseInt(input.getAttribute("data-min"))
-                                  && setting[1] <= parseInt(input.getAttribute("data-max")))
-                        {
-                            input.value = setting[1];
-                        }
+                        if (inputValid(input)) input.value = setting[1];
                     }
                 }
             }
@@ -159,9 +159,9 @@
             function refreshQuery(replace) {
                 var query = inputs.reduce(function(p,c) {
                     var show = // valid non-default values
-                        c.value > parseInt(c.getAttribute("data-min")) &&
-                        c.value <= parseInt(c.getAttribute("data-max"));
-                    return p + (show ? ((p?"&":"?") + c.id.slice(0,-5) + "=" + c.value):"");
+                        parseInt(c.value) > parseInt(c.getAttribute("data-min")) &&
+                        parseInt(c.value) <= parseInt(c.getAttribute("data-max"));
+                    return p + (show ? ((p?"&":"?") + c.id.slice(0,-5) + "=" + parseInt(c.value)):"");
                 }, "");
                 var url = location.pathname + query;
                 if (replace) history.replaceState(url, null, url);
@@ -176,7 +176,9 @@
             slicesInput.onchange = onInputChange;
             flowInput.onchange = onInputChange;
             idInput.onchange = idInput.onmouseleave = function() {
-                if (idInput.validity.valid && duckie.id != idInput.value) onInputChange();
+                if (inputValid(idInput) && duckie.id != parseInt(idInput.value)) {
+                    onInputChange();
+                }
             }
 
             // Re-render on browser back button
@@ -185,7 +187,7 @@
 
             // Toggle full screen
             fsInput.onclick = function() {
-                fsInput.value = (fsInput.value = "0" ? "1" : "0");
+                fsInput.value = (fsInput.value == "0" ? "1" : "0");
                 refreshFullscreen();
                 refreshQuery();
             }
@@ -264,16 +266,17 @@
 
             // Initialize and sketch
             var duckie = {};
-            refreshInputs();
-            refreshFullscreen(); 
+            refreshInputs(); // Parse the URL query
             refreshQuery(true); // Normalize the query in case it's invalid
+            refreshFullscreen();
             resketch();
 
             function sketch(p5js) {
                 p5js.preload = function() {
                     // Only fetch when the duckie changes
-                    if (duckie.id != idInput.value && idInput.validity.valid) {
-                        duckie = p5js.loadJSON("https://octal-crypto.github.io/crypto-duckies/data/duckies/duckie"+idInput.value+".json");
+                    if (inputValid(idInput) && duckie.id != parseInt(idInput.value)) {
+                        var url = "https://octal-crypto.github.io/crypto-duckies/data/duckies/duckie"+parseInt(idInput.value)+".json";
+                        duckie = p5js.loadJSON(url);
                     }
                 }
                 p5js.setup = function() {
